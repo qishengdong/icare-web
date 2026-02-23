@@ -1,0 +1,18 @@
+{
+  "name": "iCare 康复照护打卡",
+  "short_name": "iCare",
+  "description": "照护交付证据链OS - 让每一次护理都有据可查",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
