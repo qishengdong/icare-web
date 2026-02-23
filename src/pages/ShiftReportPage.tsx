@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useCare } from "../lib/care-context";
 import { getShiftLabel, type ShiftReport } from "../lib/care-data";
-import { ArrowLeft, FileText, Share2, AlertTriangle, Droplets, ClipboardList } from "lucide-react";
 
 interface Props { onBack: () => void; }
 
@@ -16,7 +15,7 @@ export default function ShiftReportPage({ onBack }: Props) {
       const r = generateReport();
       setReport(r);
       setGenerating(false);
-    }, 500);
+    }, 600);
   };
 
   const handleShare = () => {
@@ -58,93 +57,118 @@ export default function ShiftReportPage({ onBack }: Props) {
     return lines.filter(l => l !== undefined).join("\n");
   };
 
+  const rateColor = report ? (report.completionRate >= 0.8 ? "#2E7D32" : report.completionRate >= 0.5 ? "#E65100" : "#C62828") : "#2E7D32";
+
   return (
-    <div className="min-h-full bg-[var(--color-bg)]">
-      <div className="bg-white px-4 pt-12 pb-4 border-b border-[var(--color-border)]">
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-[var(--color-primary)] mb-2">
-          <ArrowLeft size={18} /> 返回
+    <div style={{ minHeight: "100%", background: "var(--color-bg)" }}>
+      <div className="header-gradient" style={{ padding: "40px 20px 16px", borderRadius: "0 0 24px 24px" }}>
+        <button onClick={onBack} className="press-feedback" style={{
+          display: "flex", alignItems: "center", gap: "4px",
+          color: "rgba(255,255,255,0.8)", fontSize: "14px", fontWeight: 500,
+          background: "none", border: "none", cursor: "pointer", marginBottom: "10px",
+        }}>
+          <span style={{ fontSize: "20px" }}>‹</span> 返回
         </button>
-        <h1 className="text-xl font-bold">交班记录</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mt-1">系统自动生成，一键分享</p>
+        <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>交班记录</h1>
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>系统自动生成，一键分享</p>
       </div>
 
-      <div className="px-4 py-4 space-y-4">
+      <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "12px" }}>
         {!report ? (
-          <div className="text-center py-12">
-            <FileText size={48} className="text-[var(--color-primary)] mx-auto mb-4 opacity-50" />
-            <p className="text-sm text-[var(--color-text-secondary)] mb-6">点击下方按钮自动生成本班次交班记录</p>
-            <button onClick={handleGenerate} disabled={generating}
-              className="bg-[var(--color-primary)] text-white px-8 py-3.5 rounded-xl text-base font-bold press-feedback disabled:opacity-50">
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <p style={{ fontSize: "48px", marginBottom: "12px" }}>📋</p>
+            <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "24px" }}>点击下方按钮自动生成本班次交班记录</p>
+            <button onClick={handleGenerate} disabled={generating} className="press-feedback" style={{
+              padding: "14px 32px", borderRadius: "14px", border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg, #3D7A4A, #2E5E38)", color: "#fff",
+              fontSize: "16px", fontWeight: 700, opacity: generating ? 0.6 : 1,
+              boxShadow: "0 4px 12px rgba(61,122,74,0.3)",
+            }}>
               {generating ? "生成中..." : "生成交班记录"}
             </button>
           </div>
         ) : (
           <>
             {/* Report Header */}
-            <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold">{report.date} {getShiftLabel(report.shift)}</h3>
-                <span className="text-xs text-[var(--color-text-secondary)]">{report.generatedAt}</span>
+            <div className="card-elevated" style={{ padding: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: 700 }}>{report.date} {getShiftLabel(report.shift)}</h3>
+                <span style={{ fontSize: "11px", color: "var(--color-text-tertiary)" }}>{report.generatedAt}</span>
               </div>
-              <div className="flex items-center gap-4 mt-3">
-                <div className="relative w-16 h-16">
-                  <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="#E2E8F0" strokeWidth="5" />
-                    <circle cx="32" cy="32" r="28" fill="none" stroke={report.completionRate >= 0.8 ? "#16A34A" : "#D97706"} strokeWidth="5"
-                      strokeDasharray={`${report.completionRate * 175.9} 175.9`} strokeLinecap="round" />
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div style={{ position: "relative", width: "56px", height: "56px" }}>
+                  <svg width="56" height="56" viewBox="0 0 56 56" style={{ transform: "rotate(-90deg)" }}>
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="var(--color-border)" strokeWidth="4" />
+                    <circle cx="28" cy="28" r="24" fill="none" stroke={rateColor} strokeWidth="4"
+                      strokeDasharray={`${report.completionRate * 150.8} 150.8`} strokeLinecap="round" />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">{Math.round(report.completionRate * 100)}%</span>
+                  <span style={{
+                    position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "13px", fontWeight: 800, color: rateColor,
+                  }}>{Math.round(report.completionRate * 100)}%</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">完成 {report.completedTasks.length} 项</p>
+                  <p style={{ fontSize: "14px", fontWeight: 600 }}>完成 {report.completedTasks.length} 项</p>
                   {report.missedTasks.length > 0 && (
-                    <p className="text-xs text-red-500">未完成: {report.missedTasks.join("、")}</p>
+                    <p style={{ fontSize: "12px", color: "#C62828", marginTop: "2px" }}>未完成: {report.missedTasks.join("、")}</p>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Vitals Summary */}
+            {/* Vitals */}
             {report.vitalsSummary.length > 0 && (
-              <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-                <h3 className="text-sm font-bold mb-2 flex items-center gap-2"><ClipboardList size={14} /> 生命体征</h3>
-                <div className="space-y-1">
+              <div className="card" style={{ padding: "16px" }}>
+                <h3 className="section-title" style={{ marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>📊</span> 生命体征
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                   {report.vitalsSummary.map((v, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <span className="text-sm text-[var(--color-text-secondary)]">{v.type}</span>
-                      <span className={`text-sm font-medium ${v.isAbnormal ? "text-red-600" : "text-[var(--color-text)]"}`}>{v.latest}</span>
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>{v.type}</span>
+                      <span style={{ fontSize: "13px", fontWeight: 700, color: v.isAbnormal ? "#C62828" : "var(--color-text)" }}>{v.latest}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* I/O Summary */}
-            <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-              <h3 className="text-sm font-bold mb-2 flex items-center gap-2"><Droplets size={14} /> 出入量</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-blue-50 rounded-lg p-2 text-center">
-                  <p className="text-xs text-blue-600">入量</p>
-                  <p className="text-lg font-bold text-blue-700">{report.intakeSummary.totalIntake}ml</p>
+            {/* I/O */}
+            <div className="card" style={{ padding: "16px" }}>
+              <h3 className="section-title" style={{ marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>💧</span> 出入量
+              </h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div style={{ background: "var(--color-primary-light)", borderRadius: "12px", padding: "10px", textAlign: "center" }}>
+                  <p style={{ fontSize: "11px", color: "var(--color-primary)", fontWeight: 600 }}>入量</p>
+                  <p style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-primary-dark)" }}>{report.intakeSummary.totalIntake}<span style={{ fontSize: "11px", fontWeight: 500 }}>ml</span></p>
                 </div>
-                <div className="bg-amber-50 rounded-lg p-2 text-center">
-                  <p className="text-xs text-amber-600">出量</p>
-                  <p className="text-lg font-bold text-amber-700">{report.intakeSummary.totalOutput}ml</p>
+                <div style={{ background: "var(--color-warning-light)", borderRadius: "12px", padding: "10px", textAlign: "center" }}>
+                  <p style={{ fontSize: "11px", color: "var(--color-warning)", fontWeight: 600 }}>出量</p>
+                  <p style={{ fontSize: "20px", fontWeight: 800, color: "var(--color-warning)" }}>{report.intakeSummary.totalOutput}<span style={{ fontSize: "11px", fontWeight: 500 }}>ml</span></p>
                 </div>
               </div>
             </div>
 
             {/* Abnormal Events */}
             {report.abnormalEvents.length > 0 && (
-              <div className="bg-white rounded-xl p-4 border border-red-200">
-                <h3 className="text-sm font-bold mb-2 flex items-center gap-2 text-red-600"><AlertTriangle size={14} /> 异常事件 ({report.abnormalEvents.length})</h3>
-                <div className="space-y-2">
+              <div style={{
+                borderRadius: "14px", padding: "16px",
+                background: "linear-gradient(135deg, #FFEBEE, #FFF5F5)", border: "1px solid #FFCDD2",
+              }}>
+                <h3 style={{ fontSize: "13px", fontWeight: 700, color: "#C62828", display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
+                  <span>🚨</span> 异常事件 ({report.abnormalEvents.length})
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {report.abnormalEvents.map(e => (
-                    <div key={e.id} className="flex items-start gap-2">
-                      <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${e.status === "resolved" ? "bg-green-500" : "bg-red-500"}`} />
+                    <div key={e.id} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                      <span style={{
+                        width: "8px", height: "8px", borderRadius: "50%", marginTop: "5px", flexShrink: 0,
+                        background: e.status === "resolved" ? "#66BB6A" : "#EF5350",
+                      }} />
                       <div>
-                        <p className="text-sm text-[var(--color-text)]">{e.description}</p>
-                        <p className="text-xs text-[var(--color-text-secondary)]">{e.time} · {e.status === "resolved" ? "已解决" : "待处理"}</p>
+                        <p style={{ fontSize: "13px", color: "var(--color-text)" }}>{e.description}</p>
+                        <p style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>{e.time} · {e.status === "resolved" ? "已解决" : "待处理"}</p>
                       </div>
                     </div>
                   ))}
@@ -154,20 +178,27 @@ export default function ShiftReportPage({ onBack }: Props) {
 
             {/* Next Shift Focus */}
             {report.nextShiftFocus.length > 0 && (
-              <div className="bg-[var(--color-warning-light)] rounded-xl p-4 border border-amber-200">
-                <h3 className="text-sm font-bold mb-2 text-amber-700">📌 下班重点</h3>
-                <div className="space-y-1">
+              <div style={{
+                borderRadius: "14px", padding: "16px",
+                background: "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: "1px solid #FFE0B2",
+              }}>
+                <h3 style={{ fontSize: "13px", fontWeight: 700, color: "#E65100", marginBottom: "8px" }}>📌 下班重点</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   {report.nextShiftFocus.map((f, i) => (
-                    <p key={i} className="text-sm text-amber-700">• {f}</p>
+                    <p key={i} style={{ fontSize: "13px", color: "#E65100", lineHeight: 1.5 }}>• {f}</p>
                   ))}
                 </div>
               </div>
             )}
 
             {/* Share Button */}
-            <button onClick={handleShare}
-              className="w-full bg-[var(--color-primary)] text-white py-3.5 rounded-xl text-base font-bold flex items-center justify-center gap-2 press-feedback">
-              <Share2 size={18} /> 分享交班记录
+            <button onClick={handleShare} className="press-feedback" style={{
+              width: "100%", padding: "14px", borderRadius: "14px", border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg, #3D7A4A, #2E5E38)", color: "#fff",
+              fontSize: "16px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              boxShadow: "0 4px 12px rgba(61,122,74,0.3)",
+            }}>
+              📤 分享交班记录
             </button>
           </>
         )}

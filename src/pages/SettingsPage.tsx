@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useCare } from "../lib/care-context";
 import { type PatientInfo } from "../lib/care-data";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 
 interface Props { onBack: () => void; }
 
@@ -42,20 +41,31 @@ export default function SettingsPage({ onBack }: Props) {
     setInfo({ ...info, keyAlerts: alerts });
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%", border: "1px solid var(--color-border)", borderRadius: "10px",
+    padding: "10px 12px", fontSize: "14px", background: "#FFFFFF",
+    outline: "none", transition: "border-color 0.2s",
+  };
+
   return (
-    <div className="min-h-full bg-[var(--color-bg)]">
-      <div className="bg-white px-4 pt-12 pb-4 border-b border-[var(--color-border)]">
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-[var(--color-primary)] mb-2">
-          <ArrowLeft size={18} /> 返回
+    <div style={{ minHeight: "100%", background: "var(--color-bg)" }}>
+      <div className="header-gradient" style={{ padding: "40px 20px 16px", borderRadius: "0 0 24px 24px" }}>
+        <button onClick={onBack} className="press-feedback" style={{
+          display: "flex", alignItems: "center", gap: "4px",
+          color: "rgba(255,255,255,0.8)", fontSize: "14px", fontWeight: 500,
+          background: "none", border: "none", cursor: "pointer", marginBottom: "10px",
+        }}>
+          <span style={{ fontSize: "20px" }}>‹</span> 返回
         </button>
-        <h1 className="text-xl font-bold">患者档案</h1>
+        <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>患者档案</h1>
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>仅保留安全信息，不含诊断详情</p>
       </div>
 
-      <div className="px-4 py-4 space-y-4">
+      <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "12px" }}>
         {/* Basic Info */}
-        <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-          <h3 className="text-sm font-bold mb-3">基本信息</h3>
-          <div className="space-y-3">
+        <div className="card" style={{ padding: "16px" }}>
+          <h3 className="section-title" style={{ marginBottom: "12px" }}>基本信息</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {[
               { label: "姓名", value: info.name, onChange: (v: string) => updateField("name", v) },
               { label: "年龄", value: String(info.age), onChange: (v: string) => updateField("age", parseInt(v) || 0), type: "number" },
@@ -63,47 +73,59 @@ export default function SettingsPage({ onBack }: Props) {
               { label: "护理等级", value: info.careLevel, onChange: (v: string) => updateField("careLevel", v) },
               { label: "入院日期", value: info.admissionDate, onChange: (v: string) => updateField("admissionDate", v), type: "date" },
             ].map((field) => (
-              <div key={field.label} className="flex items-center gap-3">
-                <label className="text-sm text-[var(--color-text-secondary)] w-20 shrink-0">{field.label}</label>
+              <div key={field.label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <label style={{ fontSize: "13px", color: "var(--color-text-secondary)", width: "60px", flexShrink: 0, fontWeight: 500 }}>{field.label}</label>
                 <input type={field.type || "text"} value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
-                  className="flex-1 border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)]" />
+                  style={inputStyle} />
               </div>
             ))}
           </div>
         </div>
 
         {/* Key Alerts */}
-        <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold">关键警示</h3>
-            <button onClick={addAlert} className="text-[var(--color-primary)] flex items-center gap-1 text-xs">
-              <Plus size={14} /> 添加
+        <div className="card" style={{ padding: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <h3 className="section-title">关键警示</h3>
+            <button onClick={addAlert} className="press-feedback" style={{
+              display: "flex", alignItems: "center", gap: "4px",
+              color: "var(--color-primary)", fontSize: "12px", fontWeight: 600,
+              background: "none", border: "none", cursor: "pointer",
+            }}>
+              ＋ 添加
             </button>
           </div>
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {info.keyAlerts.map((alert, i) => (
-              <div key={i} className="flex items-center gap-2">
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <input type="text" value={alert} onChange={(e) => updateAlert(i, e.target.value)}
-                  className="flex-1 border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)]" />
-                <button onClick={() => removeAlert(i)} className="text-red-400 p-1"><Trash2 size={16} /></button>
+                  placeholder="输入警示内容..."
+                  style={{ ...inputStyle, flex: 1 }} />
+                <button onClick={() => removeAlert(i)} className="press-feedback" style={{
+                  width: "32px", height: "32px", borderRadius: "8px",
+                  background: "#FFEBEE", border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "14px", color: "#C62828", flexShrink: 0,
+                }}>✕</button>
               </div>
             ))}
           </div>
         </div>
 
         {/* Contacts */}
-        <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-          <h3 className="text-sm font-bold mb-3">紧急联系人</h3>
-          <div className="space-y-3">
+        <div className="card" style={{ padding: "16px" }}>
+          <h3 className="section-title" style={{ marginBottom: "12px" }}>紧急联系人</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {info.contacts.map((contact, i) => (
-              <div key={i} className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-[var(--color-text-secondary)] mb-2">{contact.role}</p>
-                <div className="grid grid-cols-2 gap-2">
+              <div key={i} style={{
+                background: "var(--color-bg)", borderRadius: "12px", padding: "12px",
+              }}>
+                <p style={{ fontSize: "11px", color: "var(--color-text-tertiary)", fontWeight: 700, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{contact.role}</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   <input type="text" value={contact.name} onChange={(e) => updateContact(i, "name", e.target.value)}
-                    placeholder="姓名" className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)]" />
+                    placeholder="姓名" style={inputStyle} />
                   <input type="tel" value={contact.phone} onChange={(e) => updateContact(i, "phone", e.target.value)}
-                    placeholder="电话" className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)]" />
+                    placeholder="电话" style={inputStyle} />
                 </div>
               </div>
             ))}
@@ -111,11 +133,16 @@ export default function SettingsPage({ onBack }: Props) {
         </div>
 
         {/* Save Button */}
-        <button onClick={handleSave}
-          className={`w-full py-3.5 rounded-xl text-base font-bold flex items-center justify-center gap-2 press-feedback ${
-            saved ? "bg-green-500 text-white" : "bg-[var(--color-primary)] text-white"
-          }`}>
-          {saved ? <><Save size={18} /> 已保存</> : <><Save size={18} /> 保存修改</>}
+        <button onClick={handleSave} className="press-feedback" style={{
+          width: "100%", padding: "14px", borderRadius: "14px", border: "none", cursor: "pointer",
+          background: saved
+            ? "linear-gradient(135deg, #66BB6A, #43A047)"
+            : "linear-gradient(135deg, #3D7A4A, #2E5E38)",
+          color: "#fff", fontSize: "16px", fontWeight: 700,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+          boxShadow: "0 4px 12px rgba(61,122,74,0.3)",
+        }}>
+          {saved ? "✅ 已保存" : "💾 保存修改"}
         </button>
       </div>
     </div>

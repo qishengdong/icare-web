@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { useCare } from "../lib/care-context";
 import { VITAL_RANGES } from "../lib/care-data";
-import { Thermometer, Heart, Activity, Wind } from "lucide-react";
 
 type RecordTab = "vitals" | "intake_output" | "observations";
 
-const VITAL_ICONS: Record<string, React.ReactNode> = {
-  temperature: <Thermometer size={16} />,
-  blood_pressure_sys: <Heart size={16} />,
-  blood_pressure_dia: <Heart size={16} />,
-  heart_rate: <Activity size={16} />,
-  spo2: <Wind size={16} />,
+const VITAL_EMOJI: Record<string, string> = {
+  temperature: "🌡️", blood_pressure_sys: "💓", blood_pressure_dia: "💓",
+  heart_rate: "💗", spo2: "🫁",
 };
 
-const IO_LABELS: Record<string, string> = {
-  nasal_feed: "鼻饲", water: "饮水", iv_fluid: "输液", urine: "尿量", stool: "大便",
+const IO_LABELS: Record<string, { label: string; emoji: string }> = {
+  nasal_feed: { label: "鼻饲", emoji: "🍽️" },
+  water: { label: "饮水", emoji: "💧" },
+  iv_fluid: { label: "输液", emoji: "💉" },
+  urine: { label: "尿量", emoji: "🚽" },
+  stool: { label: "大便", emoji: "📋" },
 };
 
 export default function RecordsPage() {
@@ -27,7 +27,6 @@ export default function RecordsPage() {
     { id: "observations", label: "观察记录" },
   ];
 
-  // Calculate I/O totals
   const totalIntake = state.todayIntakeOutput
     .filter(r => r.type !== "urine" && r.type !== "stool")
     .reduce((sum, r) => sum + (r.amount || 0), 0);
@@ -36,53 +35,65 @@ export default function RecordsPage() {
     .reduce((sum, r) => sum + (r.amount || 0), 0);
 
   return (
-    <div className="min-h-full">
+    <div style={{ minHeight: "100%" }}>
       {/* Header */}
-      <div className="bg-white px-5 pt-12 pb-3 border-b border-[var(--color-border)]">
-        <h1 className="text-xl font-bold text-[var(--color-text)]">数据记录</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mt-1">今日护理数据汇总</p>
+      <div style={{
+        background: "#FFFFFF", padding: "40px 20px 12px",
+        borderBottom: "1px solid var(--color-border)",
+      }}>
+        <h1 style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--color-text)" }}>数据记录</h1>
+        <p style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginTop: "2px" }}>今日护理数据汇总</p>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex bg-white border-b border-[var(--color-border)]">
+      <div style={{ display: "flex", background: "#FFFFFF", borderBottom: "1px solid var(--color-border)" }}>
         {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.id ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-secondary)]"
-            }`}>
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            flex: 1, padding: "10px 0", fontSize: "13px", fontWeight: tab === t.id ? 600 : 500,
+            color: tab === t.id ? "var(--color-primary)" : "var(--color-text-secondary)",
+            borderBottom: tab === t.id ? "2px solid var(--color-primary)" : "2px solid transparent",
+            background: "none", border: "none", borderBottomStyle: "solid", cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}>
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="px-4 py-4">
-        {/* Vitals Tab */}
+      <div style={{ padding: "14px 16px" }}>
+        {/* Vitals */}
         {tab === "vitals" && (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {state.todayVitals.length === 0 ? (
-              <div className="text-center py-12 text-[var(--color-text-secondary)]">
-                <p className="text-sm">今日暂无生命体征记录</p>
-                <p className="text-xs mt-1">请在"生命体征测量"任务中录入数据</p>
+              <div style={{ textAlign: "center", padding: "48px 0", color: "var(--color-text-secondary)" }}>
+                <p style={{ fontSize: "32px", marginBottom: "8px" }}>📊</p>
+                <p style={{ fontSize: "14px" }}>今日暂无生命体征记录</p>
+                <p style={{ fontSize: "12px", marginTop: "4px" }}>请在"生命体征测量"任务中录入</p>
               </div>
             ) : (
               state.todayVitals.slice().reverse().map(v => {
                 const range = VITAL_RANGES[v.type];
                 return (
-                  <div key={v.id} className={`bg-white rounded-xl p-4 border ${v.isAbnormal ? "border-red-200 bg-red-50" : "border-[var(--color-border)]"}`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={v.isAbnormal ? "text-red-500" : "text-[var(--color-primary)]"}>
-                          {VITAL_ICONS[v.type]}
-                        </span>
-                        <span className="text-sm font-medium">{range?.label || v.type}</span>
+                  <div key={v.id} className="card" style={{
+                    padding: "14px",
+                    background: v.isAbnormal ? "linear-gradient(135deg, #FFEBEE, #FFF5F5)" : undefined,
+                    borderColor: v.isAbnormal ? "#FFCDD2" : undefined,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "16px" }}>{VITAL_EMOJI[v.type] || "📋"}</span>
+                        <span style={{ fontSize: "13px", fontWeight: 600 }}>{range?.label || v.type}</span>
                       </div>
-                      <span className="text-xs text-[var(--color-text-secondary)]">{v.time}</span>
+                      <span style={{ fontSize: "11px", color: "var(--color-text-tertiary)" }}>{v.time}</span>
                     </div>
-                    <div className="mt-2 flex items-baseline gap-1">
-                      <span className={`text-2xl font-bold ${v.isAbnormal ? "text-red-600" : "text-[var(--color-text)]"}`}>{v.value}</span>
-                      <span className="text-sm text-[var(--color-text-secondary)]">{range?.unit}</span>
+                    <div style={{ marginTop: "6px", display: "flex", alignItems: "baseline", gap: "4px" }}>
+                      <span style={{ fontSize: "24px", fontWeight: 800, color: v.isAbnormal ? "#C62828" : "var(--color-text)" }}>{v.value}</span>
+                      <span style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{range?.unit}</span>
                       {v.isAbnormal && (
-                        <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${v.alertLevel === "red" ? "bg-red-100 text-red-600" : "bg-orange-100 text-orange-600"}`}>
+                        <span className={v.alertLevel === "red" ? "badge-error" : "badge-warning"} style={{
+                          marginLeft: "8px", padding: "2px 8px", borderRadius: "100px",
+                          fontSize: "10px", fontWeight: 700,
+                        }}>
                           {v.alertLevel === "red" ? "严重异常" : "异常"}
                         </span>
                       )}
@@ -94,59 +105,73 @@ export default function RecordsPage() {
           </div>
         )}
 
-        {/* Intake/Output Tab */}
+        {/* Intake/Output */}
         {tab === "intake_output" && (
-          <div className="space-y-3">
-            {/* Summary */}
-            <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
-              <h3 className="text-sm font-bold mb-3">今日出入量汇总</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-blue-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-blue-600">总入量</p>
-                  <p className="text-xl font-bold text-blue-700">{totalIntake}<span className="text-xs font-normal ml-0.5">ml</span></p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="card" style={{ padding: "14px" }}>
+              <h3 className="section-title" style={{ marginBottom: "10px" }}>今日出入量汇总</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div style={{ background: "var(--color-primary-light)", borderRadius: "12px", padding: "12px", textAlign: "center" }}>
+                  <p style={{ fontSize: "11px", color: "var(--color-primary)", fontWeight: 600 }}>总入量</p>
+                  <p style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-primary-dark)", marginTop: "2px" }}>
+                    {totalIntake}<span style={{ fontSize: "11px", fontWeight: 500, marginLeft: "2px" }}>ml</span>
+                  </p>
                 </div>
-                <div className="bg-amber-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-amber-600">总出量(尿)</p>
-                  <p className="text-xl font-bold text-amber-700">{totalOutput}<span className="text-xs font-normal ml-0.5">ml</span></p>
+                <div style={{ background: "var(--color-warning-light)", borderRadius: "12px", padding: "12px", textAlign: "center" }}>
+                  <p style={{ fontSize: "11px", color: "var(--color-warning)", fontWeight: 600 }}>总出量(尿)</p>
+                  <p style={{ fontSize: "22px", fontWeight: 800, color: "var(--color-warning)", marginTop: "2px" }}>
+                    {totalOutput}<span style={{ fontSize: "11px", fontWeight: 500, marginLeft: "2px" }}>ml</span>
+                  </p>
                 </div>
               </div>
             </div>
-            {/* Records */}
             {state.todayIntakeOutput.length === 0 ? (
-              <div className="text-center py-8 text-[var(--color-text-secondary)]">
-                <p className="text-sm">今日暂无出入量记录</p>
+              <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-text-secondary)" }}>
+                <p style={{ fontSize: "14px" }}>今日暂无出入量记录</p>
               </div>
             ) : (
               state.todayIntakeOutput.slice().reverse().map(r => (
-                <div key={r.id} className="bg-white rounded-xl p-4 border border-[var(--color-border)] flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">{IO_LABELS[r.type] || r.type}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)]">{r.time}{r.note ? ` · ${r.note}` : ""}</p>
+                <div key={r.id} className="card" style={{ padding: "14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontSize: "18px" }}>{IO_LABELS[r.type]?.emoji || "📋"}</span>
+                    <div>
+                      <p style={{ fontSize: "14px", fontWeight: 600 }}>{IO_LABELS[r.type]?.label || r.type}</p>
+                      <p style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>{r.time}{r.note ? ` · ${r.note}` : ""}</p>
+                    </div>
                   </div>
-                  <span className="text-lg font-bold text-[var(--color-text)]">{r.amount || "-"}<span className="text-xs font-normal text-[var(--color-text-secondary)]">ml</span></span>
+                  <span style={{ fontSize: "18px", fontWeight: 800, color: "var(--color-text)" }}>
+                    {r.amount || "-"}<span style={{ fontSize: "11px", fontWeight: 500, color: "var(--color-text-secondary)", marginLeft: "2px" }}>ml</span>
+                  </span>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Observations Tab */}
+        {/* Observations */}
         {tab === "observations" && (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {state.todayObservations.length === 0 ? (
-              <div className="text-center py-12 text-[var(--color-text-secondary)]">
-                <p className="text-sm">今日暂无观察记录</p>
+              <div style={{ textAlign: "center", padding: "48px 0", color: "var(--color-text-secondary)" }}>
+                <p style={{ fontSize: "32px", marginBottom: "8px" }}>👁️</p>
+                <p style={{ fontSize: "14px" }}>今日暂无观察记录</p>
               </div>
             ) : (
               state.todayObservations.slice().reverse().map(o => (
-                <div key={o.id} className={`bg-white rounded-xl p-4 border ${o.isAbnormal ? "border-orange-200 bg-orange-50" : "border-[var(--color-border)]"}`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${o.isAbnormal ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
-                      {o.isAbnormal ? "异常" : "正常"}
+                <div key={o.id} className="card" style={{
+                  padding: "14px",
+                  background: o.isAbnormal ? "linear-gradient(135deg, #FFF3E0, #FFF8E1)" : undefined,
+                  borderColor: o.isAbnormal ? "#FFE0B2" : undefined,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span className={o.isAbnormal ? "badge-warning" : "badge-success"} style={{
+                      padding: "2px 8px", borderRadius: "100px", fontSize: "10px", fontWeight: 700,
+                    }}>
+                      {o.isAbnormal ? "⚠ 异常" : "✓ 正常"}
                     </span>
-                    <span className="text-xs text-[var(--color-text-secondary)]">{o.time}</span>
+                    <span style={{ fontSize: "11px", color: "var(--color-text-tertiary)" }}>{o.time}</span>
                   </div>
-                  <p className="text-sm text-[var(--color-text)] mt-1">{o.content}</p>
+                  <p style={{ fontSize: "13px", color: "var(--color-text)", lineHeight: 1.5 }}>{o.content}</p>
                 </div>
               ))
             )}
