@@ -1,6 +1,6 @@
 import { useCare } from "../lib/care-context";
-import { CARE_TASKS, getRecentDates, formatDate, getCheckIns, getVitals, getAbnormalEvents, VITAL_RANGES } from "../lib/care-data";
-import { AlertTriangle, CheckCircle2, TrendingUp, Clock, ChevronRight } from "lucide-react";
+import { CARE_TASKS, getRecentDates, formatDate, getCheckIns, VITAL_RANGES } from "../lib/care-data";
+import { AlertTriangle, CheckCircle2, TrendingUp, ChevronRight } from "lucide-react";
 
 interface Props { navigate: (page: any) => void; }
 

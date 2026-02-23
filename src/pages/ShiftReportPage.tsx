@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCare } from "../lib/care-context";
 import { getShiftLabel, type ShiftReport } from "../lib/care-data";
-import { ArrowLeft, FileText, Share2, CheckCircle2, AlertTriangle, Droplets, ClipboardList } from "lucide-react";
+import { ArrowLeft, FileText, Share2, AlertTriangle, Droplets, ClipboardList } from "lucide-react";
 
 interface Props { onBack: () => void; }
 

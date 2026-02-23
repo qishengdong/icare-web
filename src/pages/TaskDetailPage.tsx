@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCare } from "../lib/care-context";
-import { CARE_TASKS, VITAL_RANGES, type VitalSign, type IntakeOutput } from "../lib/care-data";
+import { CARE_TASKS, type IntakeOutput } from "../lib/care-data";
 import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface Props { taskId: string; onBack: () => void; }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCare } from "../lib/care-context";
-import { VITAL_RANGES, type IntakeOutput } from "../lib/care-data";
-import { Thermometer, Heart, Droplets, Activity, Wind } from "lucide-react";
+import { VITAL_RANGES } from "../lib/care-data";
+import { Thermometer, Heart, Activity, Wind } from "lucide-react";
 
 type RecordTab = "vitals" | "intake_output" | "observations";
 
